@@ -1,4 +1,4 @@
-GO     := GO15VENDOREXPERIMENT=1 go
+GO     := GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go
 GINKGO := ginkgo
 pkgs   = $(shell $(GO) list ./... | grep -v /vendor/)
 
@@ -8,8 +8,8 @@ DOCKER_IMAGE_TAG  ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 default: format build unit-tests
 
 deps:
-	@$(GO) get github.com/onsi/ginkgo/ginkgo
-	@$(GO) get github.com/onsi/gomega
+	@$(GO) install github.com/onsi/ginkgo/ginkgo@latest
+	@$(GO) install github.com/onsi/gomega@latest
 
 format:
 	@echo ">> formatting code"
@@ -40,7 +40,7 @@ integration-tests: deps
 	@$(GINKGO) -r -p integration
 
 docker:
-	@echo ">> building docker image"
+	@echo ">> building docker image $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)"
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 .PHONY: default deps format style vet build unit-tests integration-tests docker
