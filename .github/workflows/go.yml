@@ -24,6 +24,9 @@ jobs:
     - name: Prepare
       run: go mod init gcs-resource
 
+    - name: Update deps
+      run: go mod vendor
+  
     - name: Build
       run: make build
   
