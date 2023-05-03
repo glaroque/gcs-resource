@@ -1,0 +1,51 @@
+sudo: required
+
+language: go
+
+go_import_path: github.com/frodenas/gcs-resource
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: Unit tests
+      script: make
+
+    - stage: Integration tests
+      if: type != pull_request
+      env:
+        - GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/client_secrets.json
+        - secure: j2PI4lSeuvVRY2FE0CcDc8O6k+jDq5QUGBPWuoGi3+PM6+f5j5QQjA2T7afsp2bG9e7EQ64n0gB2ks/antXHgViyNJ3nMiCtSfVpUmWHlIC/6dfhUdA+FQzjfSwJ7vhJKXDH81Cin509uSZQ+eHwl+ZSUV/7db6K7RdK7GKzxZr92rhBlBo4l+GC83im/9iWEpj5YNMmxjC2EXxXiW0XebUm2Y0+isYnTrEgcwR6L1XOV8CP30Pwmhk+k5KnbX4rWLhznQwkHZPbc+zjBUIep5mzc7wujwPM+HMb7ohzqYmeGziIAEGv99Rsz71oLoT5sjE/KTiNVRHvZxqws0OWjxsy8uo7eB433Tfm4mU2ctj/mNFsoZ/wWPoDUXA5sXeoWJ6URtnwtjjO3lgoaAx+2Gv2Zm/w9a18O2PNfjO9k9gRSxMl7fkvmiaadz91OSZascfIZqI3M+Z2o8XOIZXH5VIGovY0SfHFCYODybXpWrakuZ01O9cEDAi2zBc2nucgHNJM7ivp0SVwZGi35uiotxkXEtaHisSnSygAL1Vi9UUP9e+iDqR5zY63J0mkeA/LHo+N2Ob0fA1NFzWk/wxx9/0NFgav0Fq2/rIj27PJpzI9n8S9u16vcgkWCyrsmfTvMSsPppG82VwIrlMM6J52u9xiloysFfZel3GzNZwNRcg=
+        - secure: pWzKFugsT6DHAh6D5NmNx+4mbsPlNGQdXSvFUfO3nDj3CJ7SSTt+mxAifcFrymPCTc3YnMjXR1u5gldWNcZnYXw5ObUm8+e+HTYhN9dSTLBhczr4+b7p4fJ6D+Ke99PF4HoZirQOHFW169jU4YVpz6yV6WIycWXlgeVBSp3eFdJvCh6FiQN17Ym3POxt8CMuy03QfFnd2qQ9x9XfQliOlsn4ZjCQRJfX7IRAiK31/Lb4cdlyswMcgnN3W/O2Sdeh4b26Rp+OoBRbyeF2rSLN1hfarHbCTMEgaI4HrGFZ5d4nTkVbscMsapufgrBwOsI/HvbEWRK7E1NEubD4isgOGMpZuU4IJgbsegKcf/qAkIJfMfk9VxZpHftBRQ+Va6J4Nv8L5VPngtOfa8Ct3QIUV4MmK+RLzAFoT66iu4qRFQL3WUyRZavKgXZekYcThfF9JfPWhcDQf+FlwJdP9uVMSG6PEzX+GK0vRQG/7c0egcpFBYOlYiM745ZissoFJY8bMT9O0UL4lYtsLUpwBJbp6gnaGFwerGSPPhnKocFF73Z6yeMpcYCAFbPh0RdgLh8PfS9xbduIABuW8F37j0DS9je6AlJ1cQ8pjmYlWa395cAidz2WPR7aZbzgH4xEMTzVYfqqgfxCBYnwN19gG1XDm5iG8KA9eDrTm0sbcDDLPyg=
+      script:
+        - openssl aes-256-cbc -K $encrypted_901c39c3ea3a_key -iv $encrypted_901c39c3ea3a_iv -in client_secrets.json.enc -out $GOOGLE_APPLICATION_CREDENTIALS -d
+        - make integration-tests
+
+    - stage: Build docker image
+      env:
+        - DOCKER_IMAGE_NAME=frodenas/gcs-resource
+        - secure: RPUd4pA+kb1xRdZ2flCGv/BEa4jlMk9pm+WH9yyIUxnjift9TWwUHAfOi1Qbng+FU7hZ0RMaiyvtt969Soscf52auBV5RWZlhBfBa6C3noxqdHkRHOQ1DUOXtKiEn77Kn2/SaM06CRMSeVL2ivmwHUdo2p496jxK0LEerofe0zSqhy6Ra5gFhTttX3InTYMGmqH0+R9YZdOm/5nO5f4RhXQtAtMRg+qkkQpa7ecDQiOkFctdbK3NBkmi9c+IxlUoOZBml6J+4G5+pd9mLlucEzjhYbpgc5Vhan44Ynj3SyKiOOnlQaD9YGdh4o/p35aRWeiek+FnYchz/bLM/Pxv/vP87M7KgYZMNujy4jXJJuNpNyfg/+Kz20o4Ub4TgXFTg0777MNJH6zUTLXTiX3tV97e+Wrmn0ESheviqMLC6OlFxcK6VqD2TDeoJhMiXJVmn9EozVtBu5AMaOssdMHvvtp0yqzDynqh6/g4R1P0AGrFuOLmM/hlzc4BafKvSNiHkRVgdjVWIEDHL/LlvUG037SOvL54HRPs5x9bfw5a7WZqPIKXvbe2DioUP7JcUJSBxOstQscCpmgFURfYTjG4Q+WtC5XQ2kr5E2ns6tpM1u9BZ7NUemc0JCvOmp3i+lhZ661hyZL7p5Dgy8WUONTzQm+yv+54cdbIp9MFpBaZBMs=
+        - secure: hhhPBh8OxESBGRkLnp2p2lptTGNAsNTJdDiCsLohHhQ4ghZy/NfFT2w2qeNkXWNabaZvYEyCzcI0vChkkjzkOeVGJhKfYSkIFSW37SuHoqtvOlykdLhEoNK+QZHWxC9b8AeRMaJc8Zq7AkFxIpqjYCaiUnWeKkrl2U2r+ceMamt+SzVUxVGfzSsrdcix1zrbHBg27c3Po1HYTJ7ovyt00yuUwcJes0u1iq7fpcnSE+S6Ej81xqmOVrXrgGYE3VgUajOZUF3Kaipp9zuh7KFmRa/6iEBTYpaLrM6aD7p6GpMIUu3QYoQRDpTYKJnyB57rUXSsPl1YKbUmKY0EGt4yxTcOYH/uAwyyXc5q0Df+ZoH0RE0ihcmUMf2zAqMGrdEJZweSXS/M+2Tpy58+Qm/L5oOqLftMdbdx+Kyb1CmnogA7b0NiW6iNJpU44j67YUfoV2NbCRmbWI4EnkIYvnAm6l7cinC9cUin1ZOag/Vvuj/PdxFsb8K1IEM5fGt4esR0DX3GpEWcF7np0Ayi3lA262mEN63erpU8llxG3E71qT+zwo/So8NYbBbKKBXGxlsHSAajij9WOVOKYmXSHr4pRGOayiOyUCEDeE+MuHTgYLQvKKg3MROSzqNNf1mprUfFY49m7O90kNOmf07PAYrIj2cH7nDsC4u8ON4GTYcdu2M=
+      script:
+        - |
+          if [ -n "$TRAVIS_TAG" ]; then
+            DOCKER_IMAGE_TAG=$TRAVIS_TAG
+          else
+            if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+              DOCKER_IMAGE_TAG=$TRAVIS_BRANCH
+            else
+              DOCKER_IMAGE_TAG=$TRAVIS_PULL_REQUEST_BRANCH
+            fi
+          fi
+        - make docker DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG
+        - |
+          if [[ "$TRAVIS_TAG" =~ ^v[0-9]+(\.[0-9]+){2}$ ]]; then
+            docker tag "$DOCKER_IMAGE_NAME:$TRAVIS_TAG" "$DOCKER_IMAGE_NAME:latest"
+          fi
+        - docker images
+        - |
+          if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+            docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+            docker push $DOCKER_IMAGE_NAME
+          fi
